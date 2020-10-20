@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/akamensky/argparse"
 	"os"
+	"sync"
 )
 
 func main() {
@@ -17,6 +18,14 @@ func main() {
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
-		run(*source, *destination)
+		// create worker wait group to wait for completion
+		var wg sync.WaitGroup
+
+		// run main function separate thread
+		wg.Add(1)
+		go run(*source, *destination, &wg)
+
+		// run wait group
+		wg.Wait()
 	}
 }

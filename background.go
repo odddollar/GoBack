@@ -7,9 +7,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
-func run(source, destination string) {
+func run(source, destination string, worker *sync.WaitGroup) {
+	// remove worker
+	defer worker.Done()
+
 	// get list of folders and files in source directory
 	sourceFolders, sourceFiles := listFoldersFiles(source)
 
