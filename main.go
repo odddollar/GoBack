@@ -1,8 +1,25 @@
 package main
 
-func main() {
-	source := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test directory"
-	destination := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test destination"
+import (
+	"fmt"
+	"github.com/akamensky/argparse"
+	"os"
+)
 
-	run(source, destination)
+func main() {
+	// create argument parser
+	parser := argparse.NewParser("File backup", "Copies files from source to destination, ignoring files that haven't been modified")
+	// add arguments
+	source := parser.String("s", "source", &argparse.Options{Required: true, Help: "The directory to copy files from, only copying files that have been modified"})
+	destination := parser.String("d", "destination", &argparse.Options{Required: true, Help: "The directory to copy files to"})
+
+	// run argparse
+	if err := parser.Parse(os.Args); err != nil {
+		fmt.Println(parser.Usage(err))
+	} else {
+		//s := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test directory"
+		//d := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test destination"
+
+		run(*source, *destination)
+	}
 }

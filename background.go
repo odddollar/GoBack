@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,9 +20,6 @@ func run(source, destination string) {
 	for x := 0; x < len(sourceFiles); x++ {
 		sourceFiles[x] = strings.Replace(sourceFiles[x], source, "", 1)
 	}
-
-	fmt.Println(sourceFolders)
-	fmt.Println(sourceFiles)
 
 	// recreate folder structure, creating folders in destination if they don't exist
 	recreateFolderStructure(sourceFolders, destination)
@@ -124,7 +122,7 @@ func listFoldersFiles(root string) ([]string, []string) {
 	})
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	return folders, files
