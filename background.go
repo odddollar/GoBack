@@ -5,12 +5,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 func run(source, destination string, coms chan []string) {
 	// get list of folders and files in source directory
 	sourceFolders, sourceFiles := listFoldersFiles(source)
+
+	// send initial length data over channel
+	coms <- []string{"", strconv.Itoa(len(sourceFiles))}
 
 	// remove root from sourceFolders and sourceFiles
 	for x := 0; x < len(sourceFolders); x++ {
@@ -49,10 +53,8 @@ func run(source, destination string, coms chan []string) {
 		}
 	}
 
-	// create temporary channel to send done command
-	temp := []string{"done", ""}
-	// send completion information over channel
-	coms <- temp
+	// close com channel
+	close(coms)
 }
 
 func appendModificationDate(file string) string {

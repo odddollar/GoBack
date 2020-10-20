@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/akamensky/argparse"
 	"github.com/olekukonko/tablewriter"
+	"github.com/schollz/progressbar"
 	"log"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -15,19 +17,18 @@ func main() {
 	// add arguments
 	source := parser.String("s", "source", &argparse.Options{Required: true, Help: "The directory to copy files from, only copying files that have been modified"})
 	destination := parser.String("d", "destination", &argparse.Options{Required: true, Help: "The directory to copy files to"})
-	printTable := parser.Flag("t", "printtable", &argparse.Options{Required: false, Help: "Print an output table with the action taken for each file found in source directory"})
+	printTable := parser.Flag("p", "printtable", &argparse.Options{Required: false, Help: "Print an output table with the action taken for each file found in source directory"})
 	outputCSV := parser.Flag("o", "outputcsv", &argparse.Options{Required: false, Help: "Output data to CSV file"})
 
 	// run argparse
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
-		// create main data arra
+		// create main data array
 		data := [][]string{}
 
 		// make communication channel
 		coms := make(chan []string)
-		defer close(coms)
 
 		// run main function on separate go routine
 		go run(*source, *destination, coms)
@@ -38,15 +39,16 @@ func main() {
 		table.SetRowLine(true)
 		table.SetAutoWrapText(false)
 
+		// create progress bar
+		temp := <- coms
+		length, _ := strconv.Atoi(temp[1])
+		bar := progressbar.Default(int64(length))
+
 		// loop to check when data is received over channel
-		for {
-			// break loop when "done" received over channel
-			if e := <- coms; e[0] == "done" {
-				break
-			} else {
-				table.Append(e)
-				data = append(data, e)
-			}
+		for e := range coms {
+			table.Append(e)
+			data = append(data, e)
+			_ = bar.Add(1)
 		}
 
 		// print table if argument given
