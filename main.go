@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"github.com/akamensky/argparse"
 	"github.com/olekukonko/tablewriter"
+	"log"
 	"os"
 )
 
@@ -14,11 +16,15 @@ func main() {
 	source := parser.String("s", "source", &argparse.Options{Required: true, Help: "The directory to copy files from, only copying files that have been modified"})
 	destination := parser.String("d", "destination", &argparse.Options{Required: true, Help: "The directory to copy files to"})
 	printTable := parser.Flag("t", "printtable", &argparse.Options{Required: false, Help: "Print an output table with the action taken for each file found in source directory"})
+	outputCSV := parser.Flag("o", "outputcsv", &argparse.Options{Required: false, Help: "Output data to CSV file"})
 
 	// run argparse
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
+		// create main data arra
+		data := [][]string{}
+
 		// make communication channel
 		coms := make(chan []string)
 		defer close(coms)
@@ -39,11 +45,35 @@ func main() {
 				break
 			} else {
 				table.Append(e)
+				data = append(data, e)
 			}
 		}
 
+		// print table if argument given
 		if *printTable {
 			table.Render()
+		}
+
+		// create csv file if argument given
+		if *outputCSV {
+			// create csv file
+			file, err := os.Create("output.csv")
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+
+			// create csv file
+			writer := csv.NewWriter(file)
+			defer writer.Flush()
+
+			// write header
+			_ = writer.Write([]string{"File", "Status"})
+
+			// write remaining data
+			for _, row := range data {
+				_ = writer.Write(row)
+			}
 		}
 	}
 }
