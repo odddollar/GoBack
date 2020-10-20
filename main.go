@@ -17,9 +17,6 @@ func main() {
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
-		//s := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test directory"
-		//d := "C:\\Users\\sieea\\OneDrive\\Code & Electronics\\Go\\File backup program\\Test destination"
-
 		run(*source, *destination)
 	}
 }
