@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/akamensky/argparse"
+	"github.com/olekukonko/tablewriter"
 	"os"
 )
 
@@ -12,17 +13,24 @@ func main() {
 	// add arguments
 	source := parser.String("s", "source", &argparse.Options{Required: true, Help: "The directory to copy files from, only copying files that have been modified"})
 	destination := parser.String("d", "destination", &argparse.Options{Required: true, Help: "The directory to copy files to"})
+	printTable := parser.Flag("t", "printtable", &argparse.Options{Required: false, Help: "Print an output table with the action taken for each file found in source directory"})
 
 	// run argparse
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
 		// make communication channel
-		coms := make(chan [2]string)
+		coms := make(chan []string)
 		defer close(coms)
 
 		// run main function on separate go routine
 		go run(*source, *destination, coms)
+
+		// create table writer
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"File", "Status"})
+		table.SetRowLine(true)
+		table.SetAutoWrapText(false)
 
 		// loop to check when data is received over channel
 		for {
@@ -30,8 +38,12 @@ func main() {
 			if e := <- coms; e[0] == "done" {
 				break
 			} else {
-				fmt.Println(e)
+				table.Append(e)
 			}
+		}
+
+		if *printTable {
+			table.Render()
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -9,7 +8,7 @@ import (
 	"strings"
 )
 
-func run(source, destination string, coms chan [2]string) {
+func run(source, destination string, coms chan []string) {
 	// get list of folders and files in source directory
 	sourceFolders, sourceFiles := listFoldersFiles(source)
 
@@ -37,12 +36,12 @@ func run(source, destination string, coms chan [2]string) {
 		// check if file exists in destination, copy if it doesn't
 		if t, _ := exists(testFile); t == true {
 			// create temporary array to send over channel
-			temp := [2]string{testFile, "Not copied"}
+			temp := []string{testFile, "Not copied"}
 			// send completed file data over channel
 			coms <- temp
 		} else {
 			// create temporary array to send over channel
-			temp := [2]string{testFile, "Copied"}
+			temp := []string{testFile, "Copied"}
 			// file doesn't exist, copy across
 			_ = copyFiles(testFileSource, testFile)
 			// send completed file data over channel
@@ -51,7 +50,7 @@ func run(source, destination string, coms chan [2]string) {
 	}
 
 	// create temporary channel to send done command
-	temp := [2]string{"done", ""}
+	temp := []string{"done", ""}
 	// send completion information over channel
 	coms <- temp
 }
@@ -102,16 +101,10 @@ func recreateFolderStructure(sourceFolders []string, destination string) {
 	for x := 0; x < len(sourceFolders); x++ {
 		testDirectory := destination + sourceFolders[x]
 		// check if directory exists in destination folder
-		if t, _ := exists(testDirectory); t == true {
-			fmt.Println(testDirectory, "exists")
-		} else {
-			fmt.Println(testDirectory, "does not exist")
+		if t, _ := exists(testDirectory); t == false {
 			_ = os.Mkdir(testDirectory, 0777)
 		}
 	}
-
-	// print newline
-	fmt.Println()
 }
 
 func listFoldersFiles(root string) ([]string, []string) {
