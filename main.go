@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/akamensky/argparse"
 	"os"
-	"sync"
 )
 
 func main() {
@@ -18,14 +17,21 @@ func main() {
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Println(parser.Usage(err))
 	} else {
-		// create worker wait group to wait for completion
-		var wg sync.WaitGroup
+		// make communication channel
+		coms := make(chan [2]string)
+		defer close(coms)
 
-		// run main function separate thread
-		wg.Add(1)
-		go run(*source, *destination, &wg)
+		// run main function on separate go routine
+		go run(*source, *destination, coms)
 
-		// run wait group
-		wg.Wait()
+		// loop to check when data is received over channel
+		for {
+			// break loop when "done" received over channel
+			if e := <- coms; e[0] == "done" {
+				break
+			} else {
+				fmt.Println(e)
+			}
+		}
 	}
 }

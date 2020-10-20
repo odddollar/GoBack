@@ -7,13 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
-func run(source, destination string, worker *sync.WaitGroup) {
-	// remove worker
-	defer worker.Done()
-
+func run(source, destination string, coms chan [2]string) {
 	// get list of folders and files in source directory
 	sourceFolders, sourceFiles := listFoldersFiles(source)
 
@@ -40,13 +36,24 @@ func run(source, destination string, worker *sync.WaitGroup) {
 
 		// check if file exists in destination, copy if it doesn't
 		if t, _ := exists(testFile); t == true {
-			fmt.Println(testFile, "already exists in destination")
+			// create temporary array to send over channel
+			temp := [2]string{testFile, "Not copied"}
+			// send completed file data over channel
+			coms <- temp
 		} else {
-			fmt.Println(testFile, "does not exist in destination")
+			// create temporary array to send over channel
+			temp := [2]string{testFile, "Copied"}
 			// file doesn't exist, copy across
 			_ = copyFiles(testFileSource, testFile)
+			// send completed file data over channel
+			coms <- temp
 		}
 	}
+
+	// create temporary channel to send done command
+	temp := [2]string{"done", ""}
+	// send completion information over channel
+	coms <- temp
 }
 
 func appendModificationDate(file string) string {
