@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/akamensky/argparse"
 	"github.com/olekukonko/tablewriter"
-	"github.com/schollz/progressbar"
+	"github.com/schollz/progressbar/v3"
 	"log"
 	"os"
 	"strconv"
