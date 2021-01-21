@@ -18,7 +18,7 @@ func main() {
 	source := parser.String("s", "source", &argparse.Options{Required: true, Help: "The directory to copy files from, only copying files that have been modified"})
 	destination := parser.String("d", "destination", &argparse.Options{Required: true, Help: "The directory to copy files to"})
 	printTable := parser.Flag("p", "printtable", &argparse.Options{Required: false, Help: "Print an output table with the action taken for each file found in source directory"})
-	outputCSV := parser.Flag("o", "outputcsv", &argparse.Options{Required: false, Help: "Output data to CSV file"})
+	outputCSV := parser.Flag("o", "outputcsv", &argparse.Options{Required: false, Help: "Output data to a CSV file"})
 
 	// run argparse
 	if err := parser.Parse(os.Args); err != nil {
