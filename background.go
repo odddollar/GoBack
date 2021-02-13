@@ -33,7 +33,7 @@ func run(source, destination string, coms chan []string) {
 
 		// create new filename with appended modification date
 		testFileExtension := filepath.Ext(sourceFiles[x])
-		testFileName := sourceFiles[x][0:len(sourceFiles[x])-len(testFileExtension)]
+		testFileName := sourceFiles[x][0 : len(sourceFiles[x])-len(testFileExtension)]
 		testFileModificationDate := appendModificationDate(testFileSource)
 		testFile := destination + testFileName + " " + testFileModificationDate + testFileExtension
 
@@ -116,7 +116,9 @@ func listFoldersFiles(root string) ([]string, []string) {
 
 	// walk through directories and folders
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {return err}
+		if err != nil {
+			return err
+		}
 
 		// append data to relevant slice based on dot in file extension
 		if !strings.Contains(path, ".") {

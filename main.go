@@ -40,7 +40,7 @@ func main() {
 		table.SetAutoWrapText(false)
 
 		// create progress bar
-		temp := <- coms
+		temp := <-coms
 		length, _ := strconv.Atoi(temp[1])
 		bar := progressbar.Default(int64(length))
 
