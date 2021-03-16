@@ -1,4 +1,4 @@
-module File-backup-program
+module GoBack
 
 go 1.15
 
