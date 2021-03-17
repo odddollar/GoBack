@@ -21,7 +21,7 @@ Provide ```-o``` to output this data to ```output.csv```.
 
 ## How it works
 
-The program walks the source directory, gets the modification date of the current file and appends it to the file name in memory. It then checks if this file name exists in the destination directory. If not then it copies it across with the modification-date-appended filename. 
+The program walks the source directory, gets the modification date of the current file and appends it to the file name in memory. It then checks if this new file name exists in the destination directory. If not then it copies it across with the modification-date-appended file name. 
 
 This means that when a file is modified, GoBack will recognise it as a completely new file when run and copy it across, thus not deleting or overwriting old versions of that file. 
 
