@@ -35,4 +35,5 @@ Run:
 git clone https://github.com/odddollar/GoBack.git
 cd GoBack
 go build GoBack
+rename GoBack.exe goback.exe
 ```
