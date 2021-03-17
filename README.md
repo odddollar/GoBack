@@ -24,3 +24,15 @@ The program walks the source directory, gets the modification date of the curren
 This means that when a file is modified, GoBack will recognise it as a completely new file when run and copy it across, thus not deleting or overwriting old versions of that file. 
 
 This allows for going back (Haha, get it?) to previous versions and safely and incrementally backing up files.
+
+## Build from source
+
+To build from source, ensure that Go is installed.
+
+Run: 
+
+```
+git clone https://github.com/odddollar/GoBack.git
+cd GoBack
+go build GoBack
+```
