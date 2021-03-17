@@ -6,6 +6,8 @@ By giving GoBack a source and destination directory, it checks if each file in t
 
 This means the program only copies across the differences, creating fast incremental backups where no files are ever deleted or overwritten in the destination directory.
 
+Prebuilt program files are available on GitHub.
+
 ## Usage
 
 Run the following in a command prompt:
