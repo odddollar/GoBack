@@ -2,4 +2,4 @@ Test destination/
 Test directory/
 .idea/
 *.exe
-output.csv
+*.csv
