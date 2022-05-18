@@ -38,7 +38,7 @@ func run(source, destination string, coms chan []string) {
 		testFile := destination + testFileName + " " + testFileModificationDate + testFileExtension
 
 		// check if file exists in destination, copy if it doesn't
-		if t, _ := exists(testFile); t == true {
+		if t, _ := exists(testFile); t {
 			// create temporary array to send over channel
 			temp := []string{testFile, "Not copied"}
 			// send completed file data over channel
@@ -103,7 +103,7 @@ func recreateFolderStructure(sourceFolders []string, destination string) {
 	for x := 0; x < len(sourceFolders); x++ {
 		testDirectory := destination + sourceFolders[x]
 		// check if directory exists in destination folder
-		if t, _ := exists(testDirectory); t == false {
+		if t, _ := exists(testDirectory); !t {
 			_ = os.Mkdir(testDirectory, 0777)
 		}
 	}
