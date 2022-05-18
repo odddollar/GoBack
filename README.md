@@ -16,7 +16,6 @@ Run the following in a command prompt:
 goback -s [PATH_TO_SOURCE_DIRECTORY] -d [PATH_TO_DESTINATION_DIRECTORY]
 ```
 
-Provide the ```-p``` flag to print a table of actions taken for each file upon completion.
 Provide ```-o``` to output this data to ```output.csv```.
 
 ## How it works
