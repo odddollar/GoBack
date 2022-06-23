@@ -34,22 +34,18 @@ func run(source, destination string, coms chan []string) {
 		// create new filename with appended modification date
 		testFileExtension := filepath.Ext(sourceFiles[x])
 		testFileName := sourceFiles[x][0 : len(sourceFiles[x])-len(testFileExtension)]
-		testFileModificationDate := appendModificationDate(testFileSource)
+		testFileModificationDate := getModificationInfo(testFileSource)
 		testFile := destination + testFileName + " " + testFileModificationDate + testFileExtension
 
 		// check if file exists in destination, copy if it doesn't
-		if t, _ := exists(testFile); t {
-			// create temporary array to send over channel
-			temp := []string{testFile, "Not copied"}
+		if t := exists(testFile); t {
 			// send completed file data over channel
-			coms <- temp
+			coms <- []string{testFile, "Not copied"}
 		} else {
-			// create temporary array to send over channel
-			temp := []string{testFile, "Copied"}
 			// file doesn't exist, copy across
-			_ = copyFiles(testFileSource, testFile)
+			copyFiles(testFileSource, testFile)
 			// send completed file data over channel
-			coms <- temp
+			coms <- []string{testFile, "Copied"}
 		}
 	}
 
@@ -57,45 +53,43 @@ func run(source, destination string, coms chan []string) {
 	close(coms)
 }
 
-func appendModificationDate(file string) string {
+func getModificationInfo(file string) string {
 	// get modification date/time and convert to string
 	stats, _ := os.Stat(file)
-	modTime := stats.ModTime()
-	modTimeString := modTime.String()
+	modTime := stats.ModTime().String()
 
 	// split to remove second part
-	modTimeString = strings.Split(modTimeString, ".")[0]
+	modTime = strings.Split(modTime, ".")[0]
 
-	if strings.Contains(modTimeString, "+") {
-		modTimeString = strings.Split(modTimeString, "+")[0]
+	if strings.Contains(modTime, "+") {
+		modTime = strings.Split(modTime, "+")[0]
 	}
 
 	// replace bad characters
-	modTimeString = strings.ReplaceAll(modTimeString, "-", "")
-	modTimeString = strings.ReplaceAll(modTimeString, ":", "")
-	modTimeString = strings.ReplaceAll(modTimeString, " ", "")
+	modTime = strings.ReplaceAll(modTime, "-", "")
+	modTime = strings.ReplaceAll(modTime, ":", "")
+	modTime = strings.ReplaceAll(modTime, " ", "")
 
-	return modTimeString
+	return modTime
 }
 
-func copyFiles(src, dst string) error {
+func copyFiles(src, dst string) {
 	in, err := os.Open(src)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	return out.Close()
 }
 
 func recreateFolderStructure(sourceFolders []string, destination string) {
@@ -103,7 +97,7 @@ func recreateFolderStructure(sourceFolders []string, destination string) {
 	for x := 0; x < len(sourceFolders); x++ {
 		testDirectory := destination + sourceFolders[x]
 		// check if directory exists in destination folder
-		if t, _ := exists(testDirectory); !t {
+		if t := exists(testDirectory); !t {
 			_ = os.Mkdir(testDirectory, 0777)
 		}
 	}
@@ -137,16 +131,16 @@ func listFoldersFiles(root string) ([]string, []string) {
 }
 
 // check if folder exists
-func exists(path string) (bool, error) {
+func exists(path string) bool {
 	_, err := os.Stat(path)
 
 	if err == nil {
-		return true, nil
+		return true
 	}
 
 	if os.IsNotExist(err) {
-		return false, nil
+		return false
 	}
 
-	return false, err
+	return false
 }

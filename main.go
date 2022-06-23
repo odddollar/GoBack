@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -21,48 +20,47 @@ func main() {
 
 	// run argparse
 	if err := parser.Parse(os.Args); err != nil {
-		fmt.Println(parser.Usage(err))
-	} else {
-		// create main data array
-		data := [][]string{}
+		log.Fatal(parser.Usage(err))
+	}
 
-		// make communication channel
-		coms := make(chan []string)
+	// create main data array
+	data := [][]string{}
 
-		// run main function on separate go routine
-		go run(*source, *destination, coms)
+	// make communication channel
+	coms := make(chan []string)
 
-		// create progress bar
-		temp := <-coms
-		length, _ := strconv.Atoi(temp[1])
-		bar := progressbar.Default(int64(length))
+	// run main function on separate go routine
+	go run(*source, *destination, coms)
 
-		// loop to check when data is received over channel
-		for e := range coms {
-			data = append(data, e)
-			_ = bar.Add(1)
+	// create progress bar
+	length, _ := strconv.Atoi((<-coms)[1])
+	bar := progressbar.Default(int64(length))
+
+	// loop to check when data is received over channel
+	for e := range coms {
+		data = append(data, e)
+		_ = bar.Add(1)
+	}
+
+	// create csv file if argument given
+	if *outputCSV {
+		// create csv file
+		file, err := os.Create("output.csv")
+		if err != nil {
+			log.Fatal(err)
 		}
+		defer file.Close()
 
-		// create csv file if argument given
-		if *outputCSV {
-			// create csv file
-			file, err := os.Create("output.csv")
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer file.Close()
+		// create csv file writer
+		writer := csv.NewWriter(file)
+		defer writer.Flush()
 
-			// create csv file
-			writer := csv.NewWriter(file)
-			defer writer.Flush()
+		// write header
+		_ = writer.Write([]string{"File", "Status"})
 
-			// write header
-			_ = writer.Write([]string{"File", "Status"})
-
-			// write remaining data
-			for _, row := range data {
-				_ = writer.Write(row)
-			}
+		// write remaining data
+		for _, row := range data {
+			_ = writer.Write(row)
 		}
 	}
 }
